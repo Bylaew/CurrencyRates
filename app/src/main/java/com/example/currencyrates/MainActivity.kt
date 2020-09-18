@@ -18,6 +18,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var progress: ProgressBar
     lateinit var listViewDetails: ListView
     var arrayListDetails: ArrayList<CurrencyModel> = ArrayList();
+    val cbUrl: String = "https://www.cbr-xml-daily.ru/daily_json.js"
     val client = OkHttpClient()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         progress.visibility = View.VISIBLE
         listViewDetails = findViewById(R.id.listView)
 
-        run("https://www.cbr-xml-daily.ru/daily_json.js")
+        run(cbUrl)
 
         listViewDetails.setOnItemClickListener { parent, view, position, id ->
             val intent = Intent(view.context, CurrencyActivity::class.java)
