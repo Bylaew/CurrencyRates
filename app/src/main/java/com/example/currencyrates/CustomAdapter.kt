@@ -16,7 +16,6 @@ class CustomAdapter(private var arrayListDetails: ArrayList<CurrencyModel>) :
         return arrayListDetails.size
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListRowHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val forRow = layoutInflater.inflate(R.layout.content_main, parent, false)
@@ -38,8 +37,6 @@ class CustomAdapter(private var arrayListDetails: ArrayList<CurrencyModel>) :
     fun getList(): ArrayList<CurrencyModel> {
         return this.arrayListDetails
     }
-
-
 }
 
 class ListRowHolder(row: View?, var crm: CurrencyModel? = null) : RecyclerView.ViewHolder(row!!) {
@@ -58,6 +55,5 @@ class ListRowHolder(row: View?, var crm: CurrencyModel? = null) : RecyclerView.V
             it.context.startActivity(intent)
         }
     }
-
 }
 
