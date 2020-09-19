@@ -1,12 +1,12 @@
 package com.example.currencyrates
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
-import android.widget.ListView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import okhttp3.*
 import org.json.JSONArray
@@ -15,9 +15,8 @@ import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
     lateinit var progress: ProgressBar
-    lateinit var listViewDetails: ListView
-    val arrayListDetails: ArrayList<CurrencyModel> = ArrayList();
-    val cbUrl: String = "https://www.cbr-xml-daily.ru/daily_json.js"
+    lateinit var recyclerViewDetails: RecyclerView
+    val arrayListDetails: ArrayList<CurrencyModel> = ArrayList()
     val client = OkHttpClient()
     var objAdapter: CustomAdapter? = null
     private val STATE_LIST = "StateAdapterData"
@@ -26,16 +25,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-
-        progress = findViewById(R.id.progressBar)
+        recyclerViewDetails = findViewById(R.id.recycler_view)
+        recyclerViewDetails.layoutManager = LinearLayoutManager(this)
+        progress = findViewById(R.id.progress_bar)
         progress.visibility = View.VISIBLE
-        listViewDetails = findViewById(R.id.listView)
         if (savedInstanceState != null) {
             val savedArrayList: ArrayList<CurrencyModel>? =
                 savedInstanceState.getParcelableArrayList(STATE_LIST)!!
             runOnUiThread {
-                objAdapter = CustomAdapter(applicationContext, savedArrayList!!)
-                listViewDetails.adapter = objAdapter
+                objAdapter = CustomAdapter(savedArrayList!!)
+                recyclerViewDetails.adapter = objAdapter
             }
             update(false, savedArrayList!!)
 
@@ -66,20 +65,11 @@ class MainActivity : AppCompatActivity() {
     fun update(b: Boolean = false, arr: ArrayList<CurrencyModel> = arrayListDetails) {
         progress.visibility = View.VISIBLE
         if (b) {
-            arrayListDetails.clear()
-            run(cbUrl)
+            arr.clear()
+            run(getString(R.string.central_bank_url))
         }
 
-        listViewDetails.setOnItemClickListener { parent, view, position, id ->
-            val intent = Intent(view.context, CurrencyActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.putExtra("numCode", arr[position].numCode)
-            intent.putExtra("name", arr[position].name)
-            intent.putExtra("value", arr[position].value)
-            intent.putExtra("charCode", arr[position].charCode)
-            view.context.startActivity(intent)
-        }
-        if(!b) progress.visibility = View.INVISIBLE
+        if (!b) progress.visibility = View.INVISIBLE
 
     }
 
@@ -97,8 +87,8 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 val listNames: JSONArray
                 val strResponse = response.body()!!.string()
+                val size: Int
                 var model: CurrencyModel
-                var size = 0
                 var jsonObjInfo: JSONObject
                 var jsonContact = JSONObject(strResponse)
 
@@ -113,13 +103,13 @@ class MainActivity : AppCompatActivity() {
                         jsonObjInfo["Name"] as String,
                         jsonObjInfo["Value"].toString(),
                         jsonObjInfo["NumCode"] as String
-                    );
+                    )
                     arrayListDetails.add(model)
 
                 }
                 runOnUiThread {
-                    objAdapter = CustomAdapter(applicationContext, arrayListDetails)
-                    listViewDetails.adapter = objAdapter
+                    objAdapter = CustomAdapter(arrayListDetails)
+                    recyclerViewDetails.adapter = objAdapter
                 }
 
                 progress.visibility = View.INVISIBLE

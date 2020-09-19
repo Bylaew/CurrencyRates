@@ -1,17 +1,11 @@
 package com.example.currencyrates
 
-import android.annotation.SuppressLint
-import android.app.ActionBar
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
-import org.w3c.dom.Text
 import java.text.DecimalFormat
 
 
@@ -35,23 +29,22 @@ class CurrencyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_currency)
 
-        idView = findViewById(R.id.idNum)
-        forCurr = findViewById(R.id.foreignCurrency)
-        natCurr = findViewById(R.id.nativeCurrency)
-        nativeCurrencyInput = findViewById(R.id.NativeCurrencyInput)
-        foreignCurrencyInput = findViewById(R.id.ForeignCurrencyInput)
-        swapButton = findViewById(R.id.SwapButton)
+        idView = findViewById(R.id.id_currency_number)
+        forCurr = findViewById(R.id.foreign_currency)
+        natCurr = findViewById(R.id.native_currency)
+        nativeCurrencyInput = findViewById(R.id.native_currency_input)
+        foreignCurrencyInput = findViewById(R.id.foreign_currency_input)
+        swapButton = findViewById(R.id.swap_button)
 
         name = intent.getStringExtra("name")!!
         numCode = intent.getStringExtra("numCode")!!
         charCode = intent.getStringExtra("charCode")!!
         value = intent.getStringExtra("value")!!
 
-        oneDecimalPlace = DecimalFormat("#.###")
-
         supportActionBar?.title = name
         nativeCurrencyInput.text = oneDecimalPlace.format(value.toDoubleOrNull()).toString()
-        idView.text = "Код валюты: $numCode"
+        foreignCurrencyInput.text = oneDecimalPlace.format("1".toDoubleOrNull()).toString()
+        idView.text = getString(R.string.numid_text_ru, numCode)
         forCurr.text = charCode
 
         nativeCurrencyInput.addTextChangedListener(textWatcher)
@@ -124,52 +117,56 @@ class CurrencyActivity : AppCompatActivity() {
 
         nativeCurrencyInput.animate().apply {
             duration = 1000
-            scaleY(0.1f)
-            scaleX(0.1f)
-            rotation(360f)
+            //scaleY(0.1f)
+            //scaleX(0.1f)
+            rotationX(360f)
         }.withEndAction {
             nativeCurrencyInput.animate().apply {
                 duration = 1000
-                scaleX(1f)
-                scaleY(1f)
-                rotation(0f)
+                //scaleX(1f)
+                //scaleY(1f)
+                rotationX(0f)
             }
         }
 
         foreignCurrencyInput.animate().apply {
             duration = 1000
-            scaleY(0.1f)
-            scaleX(0.1f)
-            rotation(360f)
+            /* scaleY(0.1f)
+             scaleX(0.1f)*/
+            rotationX(360f)
         }.withEndAction {
             foreignCurrencyInput.animate().apply {
                 duration = 1000
-                scaleX(1f)
-                scaleY(1f)
-                rotation(0f)
+                /*scaleX(1f)
+                scaleY(1f)*/
+                rotationX(0f)
             }
         }
 
         forCurr.animate().apply {
             duration = 1000
-            scaleY(0.1f)
-            scaleX(0.1f)
+            /* scaleY(0.1f)
+            scaleX(0.1f)*/
+            rotationX(360f)
         }.withEndAction {
             forCurr.animate().apply {
                 duration = 1000
-                scaleX(1f)
-                scaleY(1f)
+                /*scaleX(1f)
+                scaleY(1f)*/
+                rotationX(0f)
             }
         }
         natCurr.animate().apply {
             duration = 1000
-            scaleY(0.1f)
-            scaleX(0.1f)
+            /* scaleY(0.1f)
+            scaleX(0.1f)*/
+            rotationX(360f)
         }.withEndAction {
             natCurr.animate().apply {
                 duration = 1000
-                scaleX(1f)
-                scaleY(1f)
+                /*scaleX(1f)
+                scaleY(1f)*/
+                rotationX(0f)
             }
         }
     }
