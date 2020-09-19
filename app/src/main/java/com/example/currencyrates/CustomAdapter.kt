@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
 
-class CustomAdapter(context: Context, private val arrayListDetails: ArrayList<CurrencyModel>) : BaseAdapter(){
+class CustomAdapter(context: Context, private var arrayListDetails: ArrayList<CurrencyModel>) : BaseAdapter(){
 
     private val layoutInflater: LayoutInflater = LayoutInflater.from(context)
 
@@ -39,6 +39,13 @@ class CustomAdapter(context: Context, private val arrayListDetails: ArrayList<Cu
         listRowHolder.value.text = arrayListDetails[position].value
         return view
     }
+
+    fun getList(): ArrayList<CurrencyModel> { return this.arrayListDetails }
+    fun clear() {
+        arrayListDetails.clear()
+        notifyDataSetChanged()
+    }
+
 }
 
 private class ListRowHolder(row: View?) {

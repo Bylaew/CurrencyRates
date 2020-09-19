@@ -2,13 +2,12 @@ package com.example.currencyrates
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.View
 import android.widget.ListView
 import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import okhttp3.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -17,35 +16,38 @@ import java.io.IOException
 class MainActivity : AppCompatActivity() {
     lateinit var progress: ProgressBar
     lateinit var listViewDetails: ListView
-    var arrayListDetails: ArrayList<CurrencyModel> = ArrayList();
+    val arrayListDetails: ArrayList<CurrencyModel> = ArrayList();
     val cbUrl: String = "https://www.cbr-xml-daily.ru/daily_json.js"
     val client = OkHttpClient()
+    var objAdapter: CustomAdapter? = null
+    private val STATE_LIST = "StateAdapterData"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "todo", Snackbar.LENGTH_LONG)
-                .setAction("Добавить", null).show()
-        }
-
         progress = findViewById(R.id.progressBar)
         progress.visibility = View.VISIBLE
         listViewDetails = findViewById(R.id.listView)
+        if (savedInstanceState != null) {
+            val savedArrayList: ArrayList<CurrencyModel>? =
+                savedInstanceState.getParcelableArrayList(STATE_LIST)!!
+            runOnUiThread {
+                objAdapter = CustomAdapter(applicationContext, savedArrayList!!)
+                listViewDetails.adapter = objAdapter
+            }
+            update(false, savedArrayList!!)
 
-        run(cbUrl)
-
-        listViewDetails.setOnItemClickListener { parent, view, position, id ->
-            val intent = Intent(view.context, CurrencyActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            intent.putExtra("numCode", arrayListDetails[position].numCode)
-            intent.putExtra("name", arrayListDetails[position].name)
-            intent.putExtra("value", arrayListDetails[position].value)
-            intent.putExtra("charCode", arrayListDetails[position].charCode)
-            view.context.startActivity(intent)
+        } else {
+            update(true)
         }
+        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
+            view.isEnabled = false
+            update(true)
+            view.isEnabled = true
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -53,13 +55,41 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun run(url: String) {
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.run {
+            putParcelableArrayList(STATE_LIST, objAdapter?.getList())
+        }
+
+        super.onSaveInstanceState(outState)
+    }
+
+    fun update(b: Boolean = false, arr: ArrayList<CurrencyModel> = arrayListDetails) {
         progress.visibility = View.VISIBLE
+        if (b) {
+            arrayListDetails.clear()
+            run(cbUrl)
+        }
+
+        listViewDetails.setOnItemClickListener { parent, view, position, id ->
+            val intent = Intent(view.context, CurrencyActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            intent.putExtra("numCode", arr[position].numCode)
+            intent.putExtra("name", arr[position].name)
+            intent.putExtra("value", arr[position].value)
+            intent.putExtra("charCode", arr[position].charCode)
+            view.context.startActivity(intent)
+        }
+        if(!b) progress.visibility = View.INVISIBLE
+
+    }
+
+    private fun run(url: String) {
         val request = Request.Builder()
             .url(url)
             .build()
 
         client.newCall(request).enqueue(object : Callback {
+
             override fun onFailure(call: Call, e: IOException) {
                 progress.visibility = View.INVISIBLE
             }
@@ -75,7 +105,6 @@ class MainActivity : AppCompatActivity() {
                 jsonContact = jsonContact.getJSONObject("Valute")
                 listNames = jsonContact.names()!!
                 size = listNames.length()
-                arrayListDetails = ArrayList();
 
                 for (i in 0 until size) {
                     jsonObjInfo = jsonContact.getJSONObject(listNames[i].toString())
@@ -86,17 +115,19 @@ class MainActivity : AppCompatActivity() {
                         jsonObjInfo["NumCode"] as String
                     );
                     arrayListDetails.add(model)
-                }
 
+                }
                 runOnUiThread {
-                    val objAdapter =
-                        CustomAdapter(applicationContext, arrayListDetails)
+                    objAdapter = CustomAdapter(applicationContext, arrayListDetails)
                     listViewDetails.adapter = objAdapter
                 }
+
                 progress.visibility = View.INVISIBLE
             }
         })
     }
+
+
 }
 
 
